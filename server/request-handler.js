@@ -16,6 +16,13 @@ var storage = {
 /*[{username: 'louis', text: 'hello', roomname: 'lobby1'},
             {username: 'giri', text: 'yo', roomname: 'lobby1'}]*/
 };
+var i = 0;
+
+var addObjectId = function(obj) {
+  obj['objectId'] = i;
+  i++;
+};
+
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -49,16 +56,16 @@ var requestHandler = function(request, response) {
     var data = '';
     request.on('data', (chunk) => {
       data += chunk;
-      console.log(data);
     });
     request.on('end', function() {
-      storage.results.push(JSON.parse(data));
+      var parsed = JSON.parse(data);
+      addObjectId(parsed);
+      storage.results.unshift(parsed);
       response.end(JSON.stringify(storage));
     });
   } else if (request.method === 'GET') {
     statusCode = 200;
     response.writeHead(statusCode, headers);
-    console.log(storage);
     response.end(JSON.stringify(storage));
   } else {
     statusCode = 404;
