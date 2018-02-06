@@ -46,12 +46,14 @@ var app = {
       success: function (data) {
         // Clear messages input
         app.$message.val('');
+        console.log('ayyyyyyyyyyyyyyyyyyyyy'+data);
 
         // Trigger a fetch to update the messages, pass true to animate
         app.fetch();
       },
       error: function (error) {
-        console.error('chatterbox: Failed to send message', error);
+       // console.error('chatterbox: Failed to send message', error);
+        console.error('ayyyyyyyyyyyyyyyyyyyyy'+JSON.stringify(message));
       }
     });
   },
@@ -60,9 +62,10 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'GET',
-      data: { order: '-createdAt' },
+      data: {},
       contentType: 'application/json',
       success: function(data) {
+        console.log(data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
@@ -82,6 +85,14 @@ var app = {
 
           // Store the ID of the most recent message
           app.lastMessageId = mostRecentMessage.objectId;
+        } else {
+          app.renderRoomList(data.results);
+
+          // Update the UI with the fetched messages
+          app.renderMessages(data.results, animate);
+
+          // Store the ID of the most recent message
+          //app.lastMessageId = mostRecentMessage.objectId;
         }
       },
       error: function(error) {
@@ -162,7 +173,7 @@ var app = {
     }
 
     var $message = $('<br><span/>');
-    $message.text(message.text).appendTo($chat);
+    $message.text(message.message).appendTo($chat);
 
     // Add the message to the UI
     app.$chats.append($chat);
@@ -214,11 +225,11 @@ var app = {
   handleSubmit: function(event) {
     var message = {
       username: app.username,
-      text: app.$message.val(),
+      message: app.$message.val(),
       roomname: app.roomname || 'lobby'
     };
 
-    app.send(message);
+    app.send(JSON.stringify(message));
 
     // Stop the form from submitting
     event.preventDefault();

@@ -38,20 +38,27 @@ var requestHandler = function(request, response) {
 
 
   headers['Content-Type'] = 'application/json';
-  if (request.method === 'POST' && (request.url === '/classes/messages' || request.url === '/classes/messages?order=-createdAt')) {
+  if (request.method === 'OPTIONS') {
+    statusCode = 200;
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+  if (request.method === 'POST') {
     statusCode = 201;
     response.writeHead(statusCode, headers);
     var data = '';
     request.on('data', (chunk) => {
       data += chunk;
+      console.log(data);
     });
     request.on('end', function() {
       storage.results.push(JSON.parse(data));
       response.end(JSON.stringify(storage));
     });
-  } else if (request.method === 'GET' && (request.url === '/classes/messages' || request.url === '/classes/messages?order=-createdAt')) {
+  } else if (request.method === 'GET') {
     statusCode = 200;
     response.writeHead(statusCode, headers);
+    console.log(storage);
     response.end(JSON.stringify(storage));
   } else {
     statusCode = 404;
