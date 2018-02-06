@@ -63,7 +63,7 @@ var requestHandler = function(request, response) {
       storage.results.unshift(parsed);
       response.end(JSON.stringify(storage));
     });
-  } else if (request.method === 'GET') {
+  } else if (request.method === 'GET' && request.url.includes('classes')) {
     statusCode = 200;
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
