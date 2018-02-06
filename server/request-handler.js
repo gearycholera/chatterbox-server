@@ -11,7 +11,11 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
-
+var storage = {
+  results: []
+/*[{username: 'louis', text: 'hello', roomname: 'lobby1'},
+            {username: 'giri', text: 'yo', roomname: 'lobby1'}]*/
+};
 var requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -21,31 +25,35 @@ var requestHandler = function(request, response) {
   //
   // Documentation for both request and response can be found in the HTTP section at
   // http://nodejs.org/documentation/api/
+  var defaultCorsHeaders = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-headers': 'content-type, accept',
+    'access-control-max-age': 10 // Seconds.
+  };
+
+
   var headers = defaultCorsHeaders;
   var statusCode = 200;
 
-  var storage = {
-    results: [{username: 'louis', text: 'hello', roomname: 'lobby1'},
-              {username: 'giri', text: 'yo', roomname: 'lobby1'}]
-  };
 
   headers['Content-Type'] = 'application/json';
-  if (request.method === 'POST' && request.url === '/classes/messages') {
+  if (request.method === 'POST' && (request.url === '/classes/messages' || request.url === '/classes/messages?order=-createdAt')) {
     statusCode = 201;
     response.writeHead(statusCode, headers);
-
+    var data = '';
     request.on('data', (chunk) => {
-      storage.results.push(chunk);
+      data += chunk;
     });
-    response.end(JSON.stringify(storage));
-
-  } else if (request.method === 'GET' && request.url === '/classes/messages') {
+    request.on('end', function() {
+      storage.results.push(JSON.parse(data));
+      response.end(JSON.stringify(storage));
+    });
+  } else if (request.method === 'GET' && (request.url === '/classes/messages' || request.url === '/classes/messages?order=-createdAt')) {
     statusCode = 200;
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
-  } 
-
-  else {
+  } else {
     statusCode = 404;
     response.writeHead(statusCode, headers);
     response.end();
@@ -59,7 +67,6 @@ var requestHandler = function(request, response) {
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   // The outgoing status.
 
-  var data = '';
   // See the note below about CORS headers.
 
 
@@ -76,7 +83,7 @@ var requestHandler = function(request, response) {
             body += data;
         });*/
 
-  response.end('END'+data);
+ 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
   // response.end() will be the body of the response - i.e. what shows
@@ -97,12 +104,7 @@ var requestHandler = function(request, response) {
 //
 // Another way to get around this restriction is to serve you chat
 // client from this domain by setting up static file serving.
-var defaultCorsHeaders = {
-  'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'access-control-allow-headers': 'content-type, accept',
-  'access-control-max-age': 10 // Seconds.
-};
+
 
 exports.requestHandler = requestHandler;
 
