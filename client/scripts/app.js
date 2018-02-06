@@ -6,7 +6,7 @@ var app = {
   server: 'http://127.0.0.1:3000/classes/messages',
   username: 'anonymous',
   roomname: 'lobby',
-  lastMessageId: 0,
+  lastMessageId: -1,
   friends: {},
   messages: [],
 
@@ -51,7 +51,7 @@ var app = {
         app.fetch();
       },
       error: function (error) {
-       // console.error('chatterbox: Failed to send message', error);
+        // console.error('chatterbox: Failed to send message', error);
         console.error(JSON.stringify(message));
       }
     });
@@ -65,7 +65,7 @@ var app = {
       contentType: 'application/json',
       success: function(data) {
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        if (!data.results || !data.results.length) { app.renderMessages(data.results, animate); }
 
         // Store messages for caching later
         app.messages = data.results;

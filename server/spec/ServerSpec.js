@@ -23,6 +23,35 @@ describe('Node Server Request Listener Function', function() {
     expect(res._ended).to.equal(true);
   });
 
+  it('Should answer OPTIONS requests for /classes/messages with a 200 status code', function() {
+    // This is a fake server request. Normally, the server would provide this,
+    // but we want to test our function's behavior totally independent of the server code
+    var req = new stubs.request('/classes/messages', 'OPTIONS');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(200);
+    expect(res._ended).to.equal(true);
+  });
+
+  it('Should answer POST requests for /classes/messages with a 201 status code', function() {
+    // This is a fake server request. Normally, the server would provide this,
+    // but we want to test our function's behavior totally independent of the server code
+    var stubMsg = {
+      username: 'testing',
+      message: 'Do my testing!'
+    };
+
+    var req = new stubs.request('/classes/messages', 'POST', stubMsg);
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
+    expect(res._responseCode).to.equal(201);
+    expect(res._ended).to.equal(true);
+  });
+
   it('Should send back parsable stringified JSON', function() {
     var req = new stubs.request('/classes/messages', 'GET');
     var res = new stubs.response();
@@ -87,7 +116,7 @@ describe('Node Server Request Listener Function', function() {
 
     expect(res._responseCode).to.equal(201);
 
-      // Now if we request the log for that room the message we posted should be there:
+    // Now if we request the log for that room the message we posted should be there:
     req = new stubs.request('/classes/messages', 'GET');
     res = new stubs.response();
 
@@ -98,6 +127,7 @@ describe('Node Server Request Listener Function', function() {
     expect(messages.length).to.be.above(0);
     expect(messages[0].username).to.equal('Jono');
     expect(messages[0].message).to.equal('Do my bidding!');
+    expect(messages[0].objectId).to.equal(2);
     expect(res._ended).to.equal(true);
   });
 
@@ -108,12 +138,18 @@ describe('Node Server Request Listener Function', function() {
 
     handler.requestHandler(req, res);
 
+    expect(res._responseCode).to.equal(404);
+
+  });
+
+  it('Should 404 when asked for a nonexistent file with correct prefix in url', function() {
+    var req = new stubs.request('classes/messages/arglebarlg', 'GET');
+    var res = new stubs.response();
+
+    handler.requestHandler(req, res);
+
     // Wait for response to return and then check status code
-    waitForThen(
-      function() { return res._ended; },
-      function() {
-        expect(res._responseCode).to.equal(404);
-      });
+    expect(res._responseCode).to.equal(404);
   });
 
 });

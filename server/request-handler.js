@@ -49,8 +49,7 @@ var requestHandler = function(request, response) {
     statusCode = 200;
     response.writeHead(statusCode, headers);
     response.end();
-  }
-  if (request.method === 'POST') {
+  } else if (request.method === 'POST') {
     statusCode = 201;
     response.writeHead(statusCode, headers);
     var data = '';
@@ -63,7 +62,8 @@ var requestHandler = function(request, response) {
       storage.results.unshift(parsed);
       response.end(JSON.stringify(storage));
     });
-  } else if (request.method === 'GET' && request.url.includes('classes')) {
+  } else if (request.method === 'GET' && request.url.includes('classes/messages') && request.url.length === 17) {
+    console.log('url: ' + request.url);
     statusCode = 200;
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
