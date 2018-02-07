@@ -1,7 +1,6 @@
 /* Import node's http module: */
 var http = require('http');
 var handler = require('./request-handler');
-var qs = require('querystring');
 
 
 // Every server needs to listen on a port with a unique number. The

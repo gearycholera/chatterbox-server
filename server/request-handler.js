@@ -63,7 +63,6 @@ var requestHandler = function(request, response) {
       response.end(JSON.stringify(storage));
     });
   } else if (request.method === 'GET' && request.url.includes('classes/messages') && request.url.length === 17) {
-    console.log('url: ' + request.url);
     statusCode = 200;
     response.writeHead(statusCode, headers);
     response.end(JSON.stringify(storage));
